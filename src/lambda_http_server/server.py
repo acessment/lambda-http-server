@@ -121,6 +121,18 @@ class LambdaHTTPHandler(BaseHTTPRequestHandler):
             # Send HTTP response
             self.send_response(status_code)
 
+            # Add CORS headers for localhost requests
+            origin = self.headers.get("Origin", "")
+            if "localhost" in origin or "127.0.0.1" in origin:
+                self.send_header("Access-Control-Allow-Origin", origin)
+            else:
+                self.send_header("Access-Control-Allow-Origin", "http://localhost:*")
+
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin")
+            self.send_header("Access-Control-Allow-Credentials", "true")
+            self.send_header("Access-Control-Max-Age", "86400")
+
             # Set headers
             for key, value in headers.items():
                 self.send_header(key, value)
