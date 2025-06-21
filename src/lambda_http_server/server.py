@@ -32,7 +32,22 @@ class LambdaHTTPHandler(BaseHTTPRequestHandler):
         self._handle_request()
 
     def do_OPTIONS(self):
-        self._handle_request()
+        # Handle CORS preflight requests directly
+        self.send_response(200)
+
+        # Add CORS headers for localhost requests
+        origin = self.headers.get("Origin", "")
+        if "localhost" in origin or "127.0.0.1" in origin:
+            self.send_header("Access-Control-Allow-Origin", origin)
+        else:
+            self.send_header("Access-Control-Allow-Origin", "http://localhost:*")
+
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin")
+        self.send_header("Access-Control-Allow-Credentials", "true")
+        self.send_header("Access-Control-Max-Age", "86400")
+
+        self.end_headers()
 
     def _handle_request(self):
         try:
